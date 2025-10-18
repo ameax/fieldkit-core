@@ -5,6 +5,8 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/ameax/fieldkit-core/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/ameax/fieldkit-core/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/ameax/fieldkit-core.svg?style=flat-square)](https://packagist.org/packages/ameax/fieldkit-core)
 
+> **⚠️ Work In Progress**: This package is currently under active development and not yet ready for production use.
+
 Framework-agnostic core package for dynamic, admin-manageable form fields with multi-source support and external system integration.
 
 ## Features
