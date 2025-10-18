@@ -1,10 +1,14 @@
 {
     "name": "ameax/fieldkit-core",
-    "description": "This is my package fieldkit-core",
+    "description": "Framework-agnostic core package for dynamic, admin-manageable form fields with multi-source support (Database, JSON, PHP), handler system for external integrations, and auto-discovery of input types and transformers",
     "keywords": [
         "ameax",
         "laravel",
-        "fieldkit-core"
+        "fieldkit",
+        "dynamic-forms",
+        "form-builder",
+        "custom-fields",
+        "admin-fields"
     ],
     "homepage": "https://github.com/ameax/fieldkit-core",
     "license": "MIT",
