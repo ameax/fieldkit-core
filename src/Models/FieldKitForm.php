@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FieldKitForm extends Model
 {
+    protected $table = 'fieldkit_forms';
+    
     protected $fillable = [
         'purpose_token',
         'name',

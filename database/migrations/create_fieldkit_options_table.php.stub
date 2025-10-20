@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('fieldkit_options', function (Blueprint $table) {
+            $table->id();
+
+            // Field relationship
+            $table->unsignedBigInteger('fieldkit_definition_id')->index();
+
+            // Option data
+            $table->string('value'); // Stored value: "electronics"
+            $table->string('label'); // Display label: "Electronics"
+            $table->text('description')->nullable(); // For radio buttons with descriptions
+            $table->string('external_identifier')->nullable(); // For external system mapping
+
+            // Display order
+            $table->integer('sort_order')->default(0)->index();
+
+            $table->timestamps();
+
+            // Foreign key constraint
+            $table->foreign('fieldkit_definition_id')->references('id')->on('fieldkit_definitions')->onDelete('cascade');
+
+            // Ensure unique values per field
+            $table->unique(['fieldkit_definition_id', 'value']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('fieldkit_options');
+    }
+};
