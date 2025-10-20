@@ -1,0 +1,51 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('fieldkit_definitions', function (Blueprint $table) {
+            $table->id();
+
+            // Relation to Form
+            $table->foreignId('fieldkit_form_id')
+                ->constrained('fieldkit_forms')
+                ->onDelete('cascade');
+
+            // Field configuration
+            $table->string('key')->index();  // Unique within form
+            $table->string('type');
+            $table->string('label');
+            $table->text('description')->nullable();
+            $table->string('placeholder')->nullable();
+
+            // Validation
+            $table->boolean('is_required')->default(false);
+            $table->string('validation_rules')->nullable();
+
+            // UI
+            $table->integer('sort_order')->default(0)->index();
+            $table->boolean('is_active')->default(true)->index();
+
+            // Conditional Visibility & Mappings (JSON)
+            $table->json('conditions')->nullable();
+            $table->json('mappings')->nullable();
+
+            $table->timestamps();
+
+            // Unique: key within a form
+            $table->unique(['fieldkit_form_id', 'key']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('fieldkit_definitions');
+    }
+};

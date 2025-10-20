@@ -2,12 +2,28 @@
 
 namespace Ameax\FieldkitCore;
 
-use Ameax\FieldkitCore\Commands\FieldkitCoreCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class FieldkitCoreServiceProvider extends PackageServiceProvider
 {
+    public function register(): void
+    {
+        parent::register();
+
+        // Input type registry as singleton
+        $this->app->singleton(FieldKitInputRegistry::class, function ($app) {
+            $registry = new FieldKitInputRegistry();
+
+            // Load input types from config
+            foreach (config('fieldkit.input_types', []) as $token => $class) {
+                $registry->register($token, $class);
+            }
+
+            return $registry;
+        });
+    }
+
     public function configurePackage(Package $package): void
     {
         /*
@@ -17,9 +33,11 @@ class FieldkitCoreServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('fieldkit-core')
-            ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_fieldkit_core_table')
-            ->hasCommand(FieldkitCoreCommand::class);
+            ->hasConfigFile('fieldkit')
+            ->hasMigrations([
+                'create_fieldkit_forms_table',
+                'create_fieldkit_definitions_table', 
+                'create_fieldkit_options_table'
+            ]);
     }
 }
