@@ -111,6 +111,20 @@ class FieldKitDefinition extends Model
                     }
                     break;
 
+                case 'equals':
+                    $expectedValue = $expectedValues[0] ?? null;
+                    if ($actualValue !== $expectedValue) {
+                        return false;
+                    }
+                    break;
+
+                case 'not_equals':
+                    $expectedValue = $expectedValues[0] ?? null;
+                    if ($actualValue === $expectedValue) {
+                        return false;
+                    }
+                    break;
+
                 default:
                     return false;  // Unknown operator
             }

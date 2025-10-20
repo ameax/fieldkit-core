@@ -44,11 +44,6 @@ class FieldKitService
         $components = [];
 
         foreach ($fields as $field) {
-            // Check conditional visibility
-            if (!$field->shouldDisplay($formData)) {
-                continue;
-            }
-
             // Skip if adapter doesn't support this input type
             if (!$adapter->supports($field->type)) {
                 continue;
