@@ -11,6 +11,31 @@ class FieldKitInputRegistry
 {
     private array $inputs = [];
 
+    public function __construct(array $inputTypes = null)
+    {
+        if ($inputTypes !== null) {
+            foreach ($inputTypes as $key => $class) {
+                $this->register($key, $class);
+            }
+        } else {
+            $this->loadFromConfig();
+        }
+    }
+
+    /**
+     * Load input types from configuration
+     */
+    private function loadFromConfig(): void
+    {
+        if (function_exists('config')) {
+            $configTypes = config('fieldkit.input_types', []);
+            
+            foreach ($configTypes as $key => $class) {
+                $this->register($key, $class);
+            }
+        }
+    }
+
     /**
      * Registers an input type
      */
@@ -31,6 +56,18 @@ class FieldKitInputRegistry
     public function all(): array
     {
         return $this->inputs;
+    }
+
+    /**
+     * Gets an input class by type
+     */
+    public function get(string $key): string
+    {
+        if (!isset($this->inputs[$key])) {
+            throw new InvalidArgumentException("Input type {$key} not found in registry");
+        }
+
+        return $this->inputs[$key];
     }
 
     /**

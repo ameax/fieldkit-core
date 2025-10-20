@@ -48,28 +48,86 @@ return [
     |
     */
     'forms' => [
-        // Example form configuration
-        // 'customer_registration' => [
-        //     'name' => 'Customer Registration',
-        //     'description' => 'Additional fields for customer registration',
-        //     'handlers' => [
-        //         \App\Handlers\AmeaxCustomerHandler::class,
-        //     ],
-        //     'fields' => [
-        //         [
-        //             'key' => 'newsletter',
-        //             'type' => 'checkbox',
-        //             'label' => 'Subscribe to newsletter',
-        //             'is_required' => false,
-        //             'mappings' => [
-        //                 [
-        //                     'adapter' => 'ameax_column',
-        //                     'target' => 'customer.xcu_newsletter',
-        //                 ],
-        //             ],
-        //         ],
-        //     ],
-        // ],
+        // Example: Customer Registration with dual storage (Ameax + Mailchimp)
+        'customer_registration' => [
+            'name' => 'Customer Registration',
+            'description' => 'Additional fields for customer registration',
+            'handlers' => [
+                \Ameax\FieldkitCore\Handlers\AmeaxCustomerHandler::class,
+                \Ameax\FieldkitCore\Handlers\MailchimpSubscriberHandler::class,
+            ],
+            'fields' => [
+                [
+                    'key' => 'newsletter',
+                    'type' => 'checkbox',
+                    'label' => 'Subscribe to newsletter',
+                    'is_required' => false,
+                    'mappings' => [
+                        [
+                            'adapter' => 'ameax_column',
+                            'target' => 'customer.xcu_newsletter',
+                            'field_key' => 'newsletter',
+                            'config' => ['type' => 'boolean'],
+                        ],
+                        [
+                            'adapter' => 'mailchimp_subscriber',
+                            'target' => 'subscription',
+                            'field_key' => 'newsletter',
+                            'config' => [
+                                'list_id' => env('MAILCHIMP_NEWSLETTER_LIST_ID'),
+                                'status' => 'subscribed',
+                                'tags' => [
+                                    ['field' => 'newsletter', 'name' => 'Newsletter Subscriber']
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'key' => 'phone',
+                    'type' => 'text',
+                    'label' => 'Phone Number',
+                    'is_required' => false,
+                    'mappings' => [
+                        [
+                            'adapter' => 'ameax_column',
+                            'target' => 'customer.phone',
+                            'field_key' => 'phone',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+
+        // Example: Newsletter signup (Mailchimp only)
+        'newsletter_signup' => [
+            'name' => 'Newsletter Signup',
+            'description' => 'Simple newsletter subscription form',
+            'handlers' => [
+                \Ameax\FieldkitCore\Handlers\MailchimpSubscriberHandler::class,
+            ],
+            'fields' => [
+                [
+                    'key' => 'email',
+                    'type' => 'email',
+                    'label' => 'Email Address',
+                    'is_required' => true,
+                    'mappings' => [
+                        [
+                            'adapter' => 'mailchimp_subscriber',
+                            'target' => 'subscription',
+                            'field_key' => 'email',
+                            'config' => [
+                                'status' => 'pending', // Double opt-in
+                                'tags' => [
+                                    ['name' => 'Website Signup']
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ],
 
     /*
@@ -86,6 +144,13 @@ return [
         'async_by_default' => env('FIELDKIT_ASYNC_HANDLERS', true),
         'retry_attempts' => env('FIELDKIT_RETRY_ATTEMPTS', 3),
         'retry_delay' => env('FIELDKIT_RETRY_DELAY', 60), // seconds
+        
+        // Mailchimp Handler Configuration
+        'mailchimp' => [
+            'api_key' => env('MAILCHIMP_API_KEY'),
+            'data_center' => env('MAILCHIMP_DATA_CENTER'), // e.g., 'us1', 'us2', 'eu1'
+            'default_list_id' => env('MAILCHIMP_DEFAULT_LIST_ID'),
+        ],
     ],
 
     /*
