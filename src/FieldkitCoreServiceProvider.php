@@ -22,6 +22,11 @@ class FieldkitCoreServiceProvider extends PackageServiceProvider
 
             return $registry;
         });
+
+        // Core services as singletons
+        $this->app->singleton(\Ameax\FieldkitCore\Services\FieldKitDefinitionResolver::class);
+        $this->app->singleton(\Ameax\FieldkitCore\Services\FieldKitService::class);
+        $this->app->singleton(\Ameax\FieldkitCore\Services\FieldKitValidationService::class);
     }
 
     public function configurePackage(Package $package): void

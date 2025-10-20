@@ -67,4 +67,55 @@ class FieldKitDefinition extends Model
     {
         return in_array($this->type, ['select', 'radio']);
     }
+
+    /**
+     * Check if this field should be displayed based on conditions
+     *
+     * @param array $formData All form data (native + fieldkit)
+     * @return bool
+     */
+    public function shouldDisplay(array $formData = []): bool
+    {
+        if (empty($this->conditions)) {
+            return true;  // No conditions = always show
+        }
+
+        // ALL conditions must be met (AND)
+        foreach ($this->conditions as $condition) {
+            $fieldKey = $condition['field_key'] ?? null;
+            $expectedValues = $condition['answer_values'] ?? [];
+            $operator = $condition['operator'] ?? 'in';
+
+            // Dependent field not present in data
+            if (!isset($formData[$fieldKey])) {
+                return false;
+            }
+
+            $actualValue = $formData[$fieldKey];
+
+            // Value normalization (bool → string)
+            if (is_bool($actualValue)) {
+                $actualValue = $actualValue ? 'true' : 'false';
+            }
+
+            switch ($operator) {
+                case 'in':
+                    if (!in_array($actualValue, $expectedValues, true)) {
+                        return false;
+                    }
+                    break;
+
+                case 'not_in':
+                    if (in_array($actualValue, $expectedValues, true)) {
+                        return false;
+                    }
+                    break;
+
+                default:
+                    return false;  // Unknown operator
+            }
+        }
+
+        return true;  // All conditions met
+    }
 }
