@@ -70,6 +70,13 @@ class FieldKitService
                 'required' => $field->isRequired,
                 'validation' => $field->validationRules,
                 'sort_order' => $field->sortOrder,
+                'conditions' => $field->conditions ?? [],
+                'all_fields' => $fields->map(function ($f) {
+                    return [
+                        'key' => $f->key,
+                        'conditions' => $f->conditions ?? [],
+                    ];
+                })->toArray(),
             ];
 
             // Add options for inputs that support them
