@@ -118,4 +118,23 @@ class FieldKitDefinition extends Model
 
         return true;  // All conditions met
     }
+
+    public static function getModelLabel(): string
+    {
+        return 'Field Definition';
+    }
+
+    public static function getModelLabelPlural(): string
+    {
+        return 'Field Definitions';
+    }
+
+    public static function getNavigationSettings(): array
+    {
+        return [
+            'group' => 'System',
+            'icon' => 'heroicon-o-adjustments-horizontal',
+            'sort' => 901,
+        ];
+    }
 }

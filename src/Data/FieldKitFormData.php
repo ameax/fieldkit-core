@@ -21,9 +21,15 @@ class FieldKitFormData
 
     public static function fromModel(\Ameax\FieldkitCore\Models\FieldKitForm $form): self
     {
-        $fields = $form->activeFields->map(function ($field) {
-            return FieldKitDefinitionData::fromModel($field);
-        });
+        // Use already-loaded fields relationship and filter for active fields
+        // to avoid lazy loading when fields.options is already eager loaded
+        $fields = $form->relationLoaded('fields') 
+            ? $form->fields->where('is_active', true)->map(function ($field) {
+                return FieldKitDefinitionData::fromModel($field);
+              })
+            : $form->activeFields->map(function ($field) {
+                return FieldKitDefinitionData::fromModel($field);
+              });
 
         return new self(
             purposeToken: $form->purpose_token,

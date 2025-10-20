@@ -24,7 +24,7 @@ class FieldKitService
     public function getFieldsForPurpose(string $purposeToken): Collection
     {
         $formDefinition = $this->resolver->resolve($purposeToken);
-        
+
         if (!$formDefinition) {
             return new Collection();
         }

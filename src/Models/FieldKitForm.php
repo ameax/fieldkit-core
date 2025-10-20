@@ -52,4 +52,23 @@ class FieldKitForm extends Model
     {
         return $this->fields()->where('key', $key)->first();
     }
+
+    public static function getModelLabel(): string
+    {
+        return 'FieldKit Form';
+    }
+
+    public static function getModelLabelPlural(): string
+    {
+        return 'FieldKit Forms';
+    }
+
+    public static function getNavigationSettings(): array
+    {
+        return [
+            'group' => 'System',
+            'icon' => 'heroicon-o-document-text',
+            'sort' => 900,
+        ];
+    }
 }

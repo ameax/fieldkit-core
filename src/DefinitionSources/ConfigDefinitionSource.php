@@ -12,6 +12,8 @@ class ConfigDefinitionSource implements FieldKitDefinitionSourceInterface
     public function getFormDefinition(string $purposeToken): ?FieldKitFormData
     {
         $forms = config('fieldkit.forms', []);
+
+        dd($forms);
         
         if (!isset($forms[$purposeToken])) {
             return null;

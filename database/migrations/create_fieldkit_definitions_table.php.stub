@@ -11,43 +11,34 @@ return new class extends Migration
         Schema::create('fieldkit_definitions', function (Blueprint $table) {
             $table->id();
 
-            // Form relationship
-            $table->unsignedBigInteger('fieldkit_form_id')->index();
+            // Relation to Form
+            $table->foreignId('fieldkit_form_id')
+                ->constrained('fieldkit_forms')
+                ->onDelete('cascade');
 
-            // Field identification
-            $table->string('field_key')->index(); // e.g., 'newsletter', 'company_phone'
-
-            // Type and UI
-            $table->string('type')->index(); // Registry key: 'text', 'checkbox', etc.
+            // Field configuration
+            $table->string('key')->index();  // Unique within form
+            $table->string('type');
             $table->string('label');
             $table->text('description')->nullable();
             $table->string('placeholder')->nullable();
 
-            // Layout
+            // Validation
+            $table->boolean('is_required')->default(false);
+            $table->string('validation_rules')->nullable();
+
+            // UI
             $table->integer('sort_order')->default(0)->index();
             $table->boolean('is_active')->default(true)->index();
 
-            // Validation
-            $table->boolean('is_required')->default(false);
-            $table->text('validation_rules')->nullable(); // Laravel validation syntax
-            $table->json('validation_messages')->nullable(); // Custom error messages
-            $table->integer('min_length')->nullable();
-            $table->integer('max_length')->nullable();
-
-            // External Mappings (JSON array)
-            $table->json('external_mappings')->nullable();
-
-            // Conditional Visibility (JSON array)
+            // Conditional Visibility & Mappings (JSON)
             $table->json('conditions')->nullable();
-            $table->enum('condition_logic', ['AND', 'OR'])->default('AND');
+            $table->json('mappings')->nullable();
 
             $table->timestamps();
 
-            // Foreign key constraint
-            $table->foreign('fieldkit_form_id')->references('id')->on('fieldkit_forms')->onDelete('cascade');
-
-            // Unique constraint: field_key per form
-            $table->unique(['fieldkit_form_id', 'field_key']);
+            // Unique: key within a form
+            $table->unique(['fieldkit_form_id', 'key']);
         });
     }
 
