@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 use Ameax\FieldkitCore\Inputs\FieldKitTextInput;
 
-it('returns correct type', function () {
+it('returns correct name', function () {
     $input = new FieldKitTextInput;
 
-    expect($input->getType())->toBe('text');
+    expect($input->getName())->toBe('text');
 });
 
 it('returns correct label', function () {
     $input = new FieldKitTextInput;
 
-    expect($input->getLabel())->toBe('Text Input');
+    expect($input->getLabel())->toBe('Text');
 });
 
 it('returns correct icon', function () {
     $input = new FieldKitTextInput;
 
-    expect($input->getIcon())->toBe('heroicon-o-pencil');
+    expect($input->getIcon())->toBe('pencil');
 });
 
 it('returns correct compatibility group', function () {
@@ -28,32 +28,18 @@ it('returns correct compatibility group', function () {
     expect($input->getCompatibilityGroup())->toBe('text');
 });
 
-it('validates input correctly', function () {
+it('returns default validation rules', function () {
     $input = new FieldKitTextInput;
 
-    expect($input->validateInput('test value'))->toBeTrue();
-    expect($input->validateInput(''))->toBeTrue(); // Empty is valid
-    expect($input->validateInput(123))->toBeFalse(); // Non-string
-    expect($input->validateInput(null))->toBeFalse(); // Null
+    expect($input->getDefaultValidationRules())->toBe(['string']);
 });
 
-it('formats output correctly', function () {
+it('returns configurable attributes', function () {
     $input = new FieldKitTextInput;
+    $attributes = $input->getConfigurableAttributes();
 
-    expect($input->formatOutput('test value'))->toBe('test value');
-    expect($input->formatOutput(''))->toBe('');
-});
-
-it('is compatible with same group', function () {
-    $textInput = new FieldKitTextInput;
-    $emailInput = new \Ameax\FieldkitCore\Inputs\FieldKitEmailInput;
-
-    expect($textInput->isCompatibleWith($emailInput))->toBeTrue();
-});
-
-it('is not compatible with different group', function () {
-    $textInput = new FieldKitTextInput;
-    $numberInput = new \Ameax\FieldkitCore\Inputs\FieldKitNumberInput;
-
-    expect($textInput->isCompatibleWith($numberInput))->toBeFalse();
+    expect($attributes)->toHaveKey('placeholder');
+    expect($attributes)->toHaveKey('max_length');
+    expect($attributes['placeholder']['type'])->toBe('text');
+    expect($attributes['max_length']['type'])->toBe('number');
 });

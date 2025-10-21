@@ -5,9 +5,10 @@ declare(strict_types=1);
 use Ameax\FieldkitCore\Handlers\AmeaxCustomerHandler;
 use Ameax\FieldkitCore\Handlers\MailchimpSubscriberHandler;
 use Illuminate\Support\Facades\Http;
+use Tests\Support\TestCustomer;
 
 beforeEach(function () {
-    $this->customer = \App\Models\Customer::factory()->create([
+    $this->customer = TestCustomer::factory()->create([
         'email' => 'test@example.com',
     ]);
 });
@@ -27,7 +28,7 @@ it('ameax customer handler processes simple column mapping', function () {
         [
             'adapter' => 'ameax_column',
             'target' => 'xcu_newsletter',
-            'field_key' => 'newsletter',
+            'key' => 'newsletter',
             'config' => ['type' => 'boolean'],
         ],
     ]);
@@ -49,7 +50,7 @@ it('ameax customer handler processes nested attribute mapping', function () {
         [
             'adapter' => 'ameax_column',
             'target' => 'phone',
-            'field_key' => 'phone',
+            'key' => 'phone',
         ],
     ]);
 
@@ -92,7 +93,7 @@ it('mailchimp handler processes subscription with mocked API', function () {
         [
             'adapter' => 'mailchimp_subscriber',
             'target' => 'subscription',
-            'field_key' => 'newsletter',
+            'key' => 'newsletter',
             'config' => [
                 'list_id' => 'list123',
                 'status' => 'subscribed',
@@ -126,7 +127,7 @@ it('mailchimp handler handles missing configuration gracefully', function () {
         [
             'adapter' => 'mailchimp_subscriber',
             'target' => 'subscription',
-            'field_key' => 'newsletter',
+            'key' => 'newsletter',
         ],
     ]);
 
@@ -179,7 +180,7 @@ it('processes full integration with config-based form', function () {
                         [
                             'adapter' => 'ameax_column',
                             'target' => 'xcu_newsletter',
-                            'field_key' => 'newsletter',
+                            'key' => 'newsletter',
                             'config' => ['type' => 'boolean'],
                         ],
                     ],
@@ -194,7 +195,7 @@ it('processes full integration with config-based form', function () {
         'newsletter' => true,
     ];
 
-    $service->storeData('customer_registration', $this->customer, $formData);
+    $service->storeFieldValues('customer_registration', $formData, $this->customer);
 
     $this->customer->refresh();
 

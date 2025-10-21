@@ -43,6 +43,11 @@ class FieldKitService
         $components = [];
 
         foreach ($fields as $field) {
+            // Skip if field conditions are not met
+            if (! $this->evaluateConditions($field->conditions ?? [], $formData)) {
+                continue;
+            }
+
             // Skip if adapter doesn't support this input type
             if (! $adapter->supports($field->type)) {
                 continue;
@@ -208,10 +213,11 @@ class FieldKitService
 
             foreach ($field->mappings as $mapping) {
                 $mappings[] = [
-                    'field_key' => $field->key,
+                    'key' => $field->key,
                     'field_value' => $formData[$field->key],
                     'adapter' => $mapping['adapter'],
                     'target' => $mapping['target'],
+                    'config' => $mapping['config'] ?? [],
                     'transformations' => $mapping['transformations'] ?? null,
                     'conditions' => $mapping['conditions'] ?? null,
                 ];
@@ -219,5 +225,50 @@ class FieldKitService
         }
 
         return collect($mappings);
+    }
+
+    /**
+     * Evaluate field conditions against form data
+     */
+    protected function evaluateConditions(array $conditions, array $formData): bool
+    {
+        // If no conditions, field is always shown
+        if (empty($conditions)) {
+            return true;
+        }
+
+        // All conditions must be satisfied (AND logic)
+        foreach ($conditions as $condition) {
+            if (! $this->evaluateCondition($condition, $formData)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Evaluate a single condition
+     */
+    protected function evaluateCondition(array $condition, array $formData): bool
+    {
+        $fieldKey = $condition['field_key'] ?? null;
+        $operator = $condition['operator'] ?? 'equals';
+        $answerValues = $condition['answer_values'] ?? [];
+
+        if (! $fieldKey) {
+            return false;
+        }
+
+        $fieldValue = $formData[$fieldKey] ?? null;
+
+        return match ($operator) {
+            'equals' => in_array($fieldValue, $answerValues),
+            'not_equals' => ! in_array($fieldValue, $answerValues),
+            'contains' => is_string($fieldValue) && str_contains($fieldValue, $answerValues[0] ?? ''),
+            'empty' => empty($fieldValue),
+            'not_empty' => ! empty($fieldValue),
+            default => false,
+        };
     }
 }

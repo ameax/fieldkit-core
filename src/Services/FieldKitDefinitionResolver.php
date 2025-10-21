@@ -56,9 +56,24 @@ class FieldKitDefinitionResolver
     {
         $sourceClasses = config('fieldkit.definition_sources', []);
 
-        foreach ($sourceClasses as $sourceClass) {
-            if (class_exists($sourceClass)) {
-                $this->registerSource(app($sourceClass));
+        foreach ($sourceClasses as $key => $sourceClass) {
+            // Handle both string format and array format with class/priority
+            if (is_string($sourceClass)) {
+                // Simple string format: 'config' => 'ClassName'
+                if (class_exists($sourceClass)) {
+                    $this->registerSource(app($sourceClass));
+                }
+            } elseif (is_array($sourceClass)) {
+                if (isset($sourceClass['class'])) {
+                    // Array format: 'config' => ['class' => 'ClassName', 'priority' => 100]
+                    if (class_exists($sourceClass['class'])) {
+                        $this->registerSource(app($sourceClass['class']));
+                    }
+                } else {
+                    // The issue might be that the config structure is different
+                    // Let's just skip arrays without 'class' key for now
+                    continue;
+                }
             }
         }
     }

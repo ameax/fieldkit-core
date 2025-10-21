@@ -14,9 +14,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    // Manually register the DatabaseDefinitionSource for tests
+    $resolver = app(FieldKitDefinitionResolver::class);
+    $resolver->registerSource(new \Ameax\FieldkitCore\DefinitionSources\DatabaseDefinitionSource);
+
     $this->service = new FieldKitService(
         app(FieldKitInputRegistry::class),
-        app(FieldKitDefinitionResolver::class)
+        $resolver
     );
 });
 
@@ -78,6 +82,7 @@ it('renders form components with adapter', function () {
 
     $adapter = Mockery::mock(FieldKitAdapterInterface::class);
     $adapter->shouldReceive('supports')->with('text')->andReturn(true);
+    $adapter->shouldReceive('createComponent')->andReturn('mocked_component');
 
     $components = $this->service->renderFormComponents('test_render', $adapter);
 
@@ -108,6 +113,7 @@ it('skips fields with unmet conditions', function () {
 
     $adapter = Mockery::mock(FieldKitAdapterInterface::class);
     $adapter->shouldReceive('supports')->andReturn(true);
+    $adapter->shouldReceive('createComponent')->andReturn('mocked_component');
 
     // Without trigger field value
     $components = $this->service->renderFormComponents('conditional_form', $adapter, []);
@@ -139,11 +145,20 @@ it('stores field values to model', function () {
 
     $model = new class extends \Illuminate\Database\Eloquent\Model
     {
+        protected $table = 'test_models';
+
         protected $fillable = ['fieldkit_data'];
 
         protected $casts = ['fieldkit_data' => 'array'];
 
         public $timestamps = false;
+
+        // Make sure the model doesn't try to save to database
+        public function save(array $options = []): bool
+        {
+            // Just pretend to save for testing purposes
+            return true;
+        }
     };
 
     $this->service->storeFieldValues(
@@ -187,6 +202,7 @@ it('handles select field with options', function () {
 
     $adapter = Mockery::mock(FieldKitAdapterInterface::class);
     $adapter->shouldReceive('supports')->with('select')->andReturn(true);
+    $adapter->shouldReceive('createComponent')->andReturn('mocked_component');
 
     $components = $this->service->renderFormComponents('select_form', $adapter);
 

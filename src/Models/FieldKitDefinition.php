@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ameax\FieldkitCore\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class FieldKitDefinition extends Model
 {
+    use HasFactory;
+
     protected $table = 'fieldkit_definitions';
 
     protected $fillable = [
@@ -80,6 +83,11 @@ class FieldKitDefinition extends Model
     public function needsOptions(): bool
     {
         return in_array($this->type, ['select', 'radio']);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 
     public static function getModelLabel(): string

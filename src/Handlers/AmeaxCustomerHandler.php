@@ -42,7 +42,7 @@ class AmeaxCustomerHandler implements FieldKitMappingHandlerInterface
     protected function processMapping(Model $model, array $mapping, array $formData): void
     {
         $target = $mapping['target'];
-        $fieldKey = $mapping['field_key'] ?? null;
+        $fieldKey = $mapping['key'] ?? null;
 
         if (! $fieldKey || ! isset($formData[$fieldKey])) {
             return;

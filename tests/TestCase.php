@@ -12,12 +12,19 @@ class TestCase extends Orchestra
     {
         parent::setUp();
 
-        Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Ameax\\FieldkitCore\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        );
+        Factory::guessFactoryNamesUsing(function (string $modelName) {
+            // For test models
+            if (str_starts_with($modelName, 'Tests\\Support\\')) {
+                return 'Tests\\Support\\'.class_basename($modelName).'Factory';
+            }
+
+            // For package models
+            return 'Ameax\\FieldkitCore\\Database\\Factories\\'.class_basename($modelName).'Factory';
+        });
 
         // Run migrations for testing
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
     }
 
     protected function getPackageProviders($app)
@@ -51,9 +58,16 @@ class TestCase extends Orchestra
         ]);
 
         config()->set('fieldkit.definition_sources', [
-            'config' => ['priority' => 200],
-            'database' => ['priority' => 100],
+            'config' => [
+                'class' => \Ameax\FieldkitCore\DefinitionSources\ConfigDefinitionSource::class,
+                'priority' => 200,
+            ],
+            'database' => [
+                'class' => \Ameax\FieldkitCore\DefinitionSources\DatabaseDefinitionSource::class,
+                'priority' => 100,
+            ],
             'json' => [
+                'class' => \Ameax\FieldkitCore\DefinitionSources\JsonDefinitionSource::class,
                 'priority' => 50,
                 'path' => storage_path('fieldkit'),
             ],

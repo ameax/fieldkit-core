@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ameax\FieldkitCore\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class FieldKitOption extends Model
 {
+    use HasFactory;
+
     protected $table = 'fieldkit_options';
 
     protected $fillable = [

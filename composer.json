@@ -46,6 +46,7 @@
     "autoload-dev": {
         "psr-4": {
             "Ameax\\FieldkitCore\\Tests\\": "tests/",
+            "Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },

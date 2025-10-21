@@ -17,37 +17,61 @@ it('processes mapping with sync handler', function () {
     {
         public static $lastProcessedData = null;
 
-        public function handle(string $target, mixed $value, array $config = []): void
+        public function supports(string $adapter): bool
+        {
+            return $adapter === 'test_adapter';
+        }
+
+        public function handle(Model $model, Collection $mappings, array $formData): void
         {
             self::$lastProcessedData = [
-                'target' => $target,
-                'value' => $value,
-                'config' => $config,
+                'model' => $model,
+                'mappings' => $mappings->toArray(),
+                'formData' => $formData,
             ];
         }
 
-        public function isAsync(): bool
+        public function shouldQueue(): bool
         {
             return false;
         }
     };
 
-    // Register the test handler
-    config(['fieldkit.handlers.test_sync' => get_class($handler)]);
+    // Create a test model
+    $model = new class extends Model
+    {
+        protected $table = 'test_models';
+
+        public $timestamps = false;
+    };
+
+    // Create test mappings
+    $mappings = collect([
+        [
+            'field_key' => 'phone',
+            'field_value' => '+49 123 456789',
+            'adapter' => 'test_adapter',
+            'target' => 'customer.phone',
+            'transformations' => null,
+            'conditions' => null,
+        ],
+    ]);
+
+    $formData = ['phone' => '+49 123 456789'];
 
     $job = new ProcessFieldKitMapping(
-        'test_sync',
-        'customer.phone',
-        '+49 123 456789',
-        ['format' => 'international']
+        get_class($handler),
+        $model,
+        $mappings,
+        $formData
     );
 
     $job->handle();
 
     expect($handler::$lastProcessedData)->toBe([
-        'target' => 'customer.phone',
-        'value' => '+49 123 456789',
-        'config' => ['format' => 'international'],
+        'model' => $model,
+        'mappings' => $mappings->toArray(),
+        'formData' => $formData,
     ]);
 });
 
@@ -76,58 +100,76 @@ it('processes mapping with async handler', function () {
         }
     };
 
-    // Register the test handler
-    config(['fieldkit.handlers.test_async' => get_class($handler)]);
+    // Create a test model
+    $model = new class extends Model
+    {
+        protected $table = 'test_models';
+
+        public $timestamps = false;
+    };
+
+    // Create test mappings
+    $mappings = collect([
+        [
+            'field_key' => 'email',
+            'field_value' => 'test@example.com',
+            'adapter' => 'test_adapter',
+            'target' => 'customer.email',
+            'transformations' => null,
+            'conditions' => null,
+        ],
+    ]);
+
+    $formData = ['email' => 'test@example.com'];
 
     $job = new ProcessFieldKitMapping(
-        'test_async',
-        'customer.email',
-        'test@example.com',
-        ['list_id' => '123']
+        get_class($handler),
+        $model,
+        $mappings,
+        $formData
     );
 
     $job->handle();
 
     expect($handler::$lastProcessedData)->toBe([
-        'target' => 'customer.email',
-        'value' => 'test@example.com',
-        'config' => ['list_id' => '123'],
+        'model' => $model,
+        'mappings' => $mappings->toArray(),
+        'formData' => $formData,
     ]);
 });
 
 it('throws exception for unknown handler', function () {
+    $model = new class extends Model
+    {
+        protected $table = 'test_models';
+
+        public $timestamps = false;
+    };
+
     $job = new ProcessFieldKitMapping(
-        'unknown_handler',
-        'target',
-        'value',
+        'NonExistentHandlerClass',
+        $model,
+        collect([]),
         []
     );
 
     $job->handle();
-})->throws(InvalidArgumentException::class, 'Handler unknown_handler not found in configuration');
-
-it('throws exception for invalid handler class', function () {
-    config(['fieldkit.handlers.invalid' => 'NonExistentClass']);
-
-    $job = new ProcessFieldKitMapping(
-        'invalid',
-        'target',
-        'value',
-        []
-    );
-
-    $job->handle();
-})->throws(InvalidArgumentException::class, 'Handler class NonExistentClass does not exist');
+})->throws(\Exception::class, 'Handler class not found: NonExistentHandlerClass');
 
 it('throws exception for handler not implementing interface', function () {
-    config(['fieldkit.handlers.invalid_interface' => stdClass::class]);
+    $model = new class extends Model
+    {
+        protected $table = 'test_models';
+
+        public $timestamps = false;
+    };
 
     $job = new ProcessFieldKitMapping(
-        'invalid_interface',
-        'target',
-        'value',
+        stdClass::class,
+        $model,
+        collect([]),
         []
     );
 
     $job->handle();
-})->throws(InvalidArgumentException::class, 'Handler stdClass must implement FieldKitMappingHandlerInterface');
+})->throws(\Exception::class, 'Handler must implement FieldKitMappingHandlerInterface: stdClass');
