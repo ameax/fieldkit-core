@@ -8,6 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $fieldkit_form_id
+ * @property string $key
+ * @property string $type
+ * @property string $label
+ * @property string|null $description
+ * @property string|null $placeholder
+ * @property bool $is_required
+ * @property string|null $validation_rules
+ * @property int $sort_order
+ * @property bool $is_active
+ * @property array|null $conditions
+ * @property array|null $mappings
+ */
 class FieldKitDefinition extends Model
 {
     protected $table = 'fieldkit_definitions';

@@ -20,8 +20,8 @@ class JsonDefinitionSource implements FieldKitDefinitionSourceInterface
     public function getFormDefinition(string $purposeToken): ?FieldKitFormData
     {
         $filePath = $this->getFilePath($purposeToken);
-        
-        if (!File::exists($filePath)) {
+
+        if (! File::exists($filePath)) {
             return null;
         }
 
@@ -37,7 +37,7 @@ class JsonDefinitionSource implements FieldKitDefinitionSourceInterface
 
     public function getAvailablePurposes(): array
     {
-        if (!File::exists($this->basePath)) {
+        if (! File::exists($this->basePath)) {
             return [];
         }
 
@@ -65,6 +65,6 @@ class JsonDefinitionSource implements FieldKitDefinitionSourceInterface
 
     private function getFilePath(string $purposeToken): string
     {
-        return $this->basePath . DIRECTORY_SEPARATOR . $purposeToken . '.json';
+        return $this->basePath.DIRECTORY_SEPARATOR.$purposeToken.'.json';
     }
 }

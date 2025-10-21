@@ -15,7 +15,7 @@ class FieldKitFormData
         public bool $isActive = true,
         public ?string $ownerType = null,
         public ?int $ownerId = null,
-        public Collection $fields = new Collection(),
+        public Collection $fields = new Collection,
         public array $handlers = [],
     ) {}
 
@@ -23,13 +23,15 @@ class FieldKitFormData
     {
         // Use already-loaded fields relationship and filter for active fields
         // to avoid lazy loading when fields.options is already eager loaded
-        $fields = $form->relationLoaded('fields') 
+        $fields = $form->relationLoaded('fields')
             ? $form->fields->where('is_active', true)->map(function ($field) {
+                /** @var \Ameax\FieldkitCore\Models\FieldKitDefinition $field */
                 return FieldKitDefinitionData::fromModel($field);
-              })
+            })
             : $form->activeFields->map(function ($field) {
+                /** @var \Ameax\FieldkitCore\Models\FieldKitDefinition $field */
                 return FieldKitDefinitionData::fromModel($field);
-              });
+            });
 
         return new self(
             purposeToken: $form->purpose_token,
@@ -77,7 +79,7 @@ class FieldKitFormData
             'is_active' => $this->isActive,
             'owner_type' => $this->ownerType,
             'owner_id' => $this->ownerId,
-            'fields' => $this->fields->map(fn($field) => $field->toArray())->toArray(),
+            'fields' => $this->fields->map(fn ($field) => $field->toArray())->toArray(),
             'handlers' => $this->handlers,
         ];
     }

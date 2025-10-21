@@ -77,7 +77,7 @@ return [
                                 'list_id' => env('MAILCHIMP_NEWSLETTER_LIST_ID'),
                                 'status' => 'subscribed',
                                 'tags' => [
-                                    ['field' => 'newsletter', 'name' => 'Newsletter Subscriber']
+                                    ['field' => 'newsletter', 'name' => 'Newsletter Subscriber'],
                                 ],
                             ],
                         ],
@@ -120,7 +120,7 @@ return [
                             'config' => [
                                 'status' => 'pending', // Double opt-in
                                 'tags' => [
-                                    ['name' => 'Website Signup']
+                                    ['name' => 'Website Signup'],
                                 ],
                             ],
                         ],
@@ -144,7 +144,7 @@ return [
         'async_by_default' => env('FIELDKIT_ASYNC_HANDLERS', true),
         'retry_attempts' => env('FIELDKIT_RETRY_ATTEMPTS', 3),
         'retry_delay' => env('FIELDKIT_RETRY_DELAY', 60), // seconds
-        
+
         // Mailchimp Handler Configuration
         'mailchimp' => [
             'api_key' => env('MAILCHIMP_API_KEY'),

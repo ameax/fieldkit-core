@@ -27,9 +27,10 @@ class MailchimpSubscriberHandler implements FieldKitMappingHandlerInterface
     {
         $apiKey = config('fieldkit.handlers.mailchimp.api_key');
         $dataCenter = config('fieldkit.handlers.mailchimp.data_center');
-        
-        if (!$apiKey || !$dataCenter) {
+
+        if (! $apiKey || ! $dataCenter) {
             Log::warning('FieldKit Mailchimp handler: Missing API key or data center configuration');
+
             return;
         }
 
@@ -53,29 +54,31 @@ class MailchimpSubscriberHandler implements FieldKitMappingHandlerInterface
     {
         $config = $mapping['config'] ?? [];
         $listId = $config['list_id'] ?? config('fieldkit.handlers.mailchimp.default_list_id');
-        
-        if (!$listId) {
+
+        if (! $listId) {
             Log::warning('FieldKit Mailchimp handler: No list ID configured for mapping', $mapping);
+
             return;
         }
 
         // Extract email from form data or model
         $email = $this->extractEmail($model, $formData, $config);
-        if (!$email) {
+        if (! $email) {
             Log::warning('FieldKit Mailchimp handler: No email found for subscription');
+
             return;
         }
 
         // Prepare subscriber data
         $subscriberData = $this->prepareSubscriberData($email, $formData, $config);
-        
+
         // Make API call
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Basic ' . base64_encode('user:' . $apiKey),
+                'Authorization' => 'Basic '.base64_encode('user:'.$apiKey),
                 'Content-Type' => 'application/json',
             ])->put(
-                "https://{$dataCenter}.api.mailchimp.com/3.0/lists/{$listId}/members/" . md5(strtolower($email)),
+                "https://{$dataCenter}.api.mailchimp.com/3.0/lists/{$listId}/members/".md5(strtolower($email)),
                 $subscriberData
             );
 
@@ -83,21 +86,21 @@ class MailchimpSubscriberHandler implements FieldKitMappingHandlerInterface
                 Log::info('FieldKit Mailchimp: Successfully subscribed user', [
                     'email' => $email,
                     'list_id' => $listId,
-                    'status' => $subscriberData['status']
+                    'status' => $subscriberData['status'],
                 ]);
             } else {
                 Log::error('FieldKit Mailchimp: Subscription failed', [
                     'email' => $email,
                     'list_id' => $listId,
                     'status' => $response->status(),
-                    'response' => $response->json()
+                    'response' => $response->json(),
                 ]);
             }
         } catch (\Exception $e) {
             Log::error('FieldKit Mailchimp: Exception during subscription', [
                 'email' => $email,
                 'list_id' => $listId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -118,13 +121,25 @@ class MailchimpSubscriberHandler implements FieldKitMappingHandlerInterface
         }
 
         // Check model
-        if ($model->hasAttribute('email') && $model->email) {
-            return $model->email;
+        if ($model->hasAttribute('email')) {
+            /** @var string|null $email */
+            $email = $model->getAttribute('email');
+            if ($email) {
+                return $email;
+            }
         }
 
         // Check customer relationship
-        if (method_exists($model, 'customer') && $model->customer && $model->customer->email) {
-            return $model->customer->email;
+        if (method_exists($model, 'customer')) {
+            /** @var \Illuminate\Database\Eloquent\Model|null $customer */
+            $customer = $model->getAttribute('customer');
+            if ($customer && $customer->hasAttribute('email')) {
+                /** @var string|null $customerEmail */
+                $customerEmail = $customer->getAttribute('email');
+                if ($customerEmail) {
+                    return $customerEmail;
+                }
+            }
         }
 
         return null;
@@ -148,7 +163,7 @@ class MailchimpSubscriberHandler implements FieldKitMappingHandlerInterface
                     $mergeFields[$mailchimpField] = $formData[$formField];
                 }
             }
-            if (!empty($mergeFields)) {
+            if (! empty($mergeFields)) {
                 $data['merge_fields'] = $mergeFields;
             }
         }
@@ -161,7 +176,7 @@ class MailchimpSubscriberHandler implements FieldKitMappingHandlerInterface
                     $interests[$interestId] = (bool) $formData[$formField];
                 }
             }
-            if (!empty($interests)) {
+            if (! empty($interests)) {
                 $data['interests'] = $interests;
             }
         }
@@ -176,7 +191,7 @@ class MailchimpSubscriberHandler implements FieldKitMappingHandlerInterface
                     $tags[] = ['name' => $tag['name'], 'status' => 'active'];
                 }
             }
-            if (!empty($tags)) {
+            if (! empty($tags)) {
                 $data['tags'] = $tags;
             }
         }

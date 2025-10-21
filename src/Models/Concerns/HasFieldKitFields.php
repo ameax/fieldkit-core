@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Ameax\FieldkitCore\Models\Concerns;
 
+/**
+ * @property array|null $fieldkit_data
+ *
+ * @phpstan-ignore-next-line
+ */
 trait HasFieldKitFields
 {
     public function initializeHasFieldKitFields(): void

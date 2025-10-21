@@ -20,16 +20,17 @@ class FieldKitDefinitionData
         public bool $isActive = true,
         public ?array $conditions = null,
         public ?array $mappings = null,
-        public Collection $options = new Collection(),
+        public Collection $options = new Collection,
     ) {}
 
     public static function fromModel(\Ameax\FieldkitCore\Models\FieldKitDefinition $definition): self
     {
         // Handle lazy loading disabled by checking if relationship is loaded
-        $options = $definition->relationLoaded('options') 
+        $options = $definition->relationLoaded('options')
             ? $definition->options->map(function ($option) {
+                /** @var \Ameax\FieldkitCore\Models\FieldKitOption $option */
                 return FieldKitOptionData::fromModel($option);
-              })
+            })
             : collect();
 
         return new self(
@@ -95,8 +96,7 @@ class FieldKitDefinitionData
     /**
      * Check if this field should be displayed based on conditions
      *
-     * @param array $formData All form data (native + fieldkit)
-     * @return bool
+     * @param  array  $formData  All form data (native + fieldkit)
      */
     public function shouldDisplay(array $formData = []): bool
     {
@@ -111,7 +111,7 @@ class FieldKitDefinitionData
             $operator = $condition['operator'] ?? 'in';
 
             // Dependent field not present in data
-            if (!isset($formData[$fieldKey])) {
+            if (! isset($formData[$fieldKey])) {
                 return false;
             }
 
@@ -124,7 +124,7 @@ class FieldKitDefinitionData
 
             switch ($operator) {
                 case 'in':
-                    if (!in_array($actualValue, $expectedValues, true)) {
+                    if (! in_array($actualValue, $expectedValues, true)) {
                         return false;
                     }
                     break;
@@ -157,7 +157,7 @@ class FieldKitDefinitionData
             'is_active' => $this->isActive,
             'conditions' => $this->conditions,
             'mappings' => $this->mappings,
-            'options' => $this->options->map(fn($option) => $option->toArray())->toArray(),
+            'options' => $this->options->map(fn ($option) => $option->toArray())->toArray(),
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Ameax\FieldkitCore\Models\FieldKitForm;
 use Ameax\FieldkitCore\Models\FieldKitDefinition;
+use Ameax\FieldkitCore\Models\FieldKitForm;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -14,7 +14,7 @@ it('evaluates in operator correctly', function () {
         'name' => 'Visibility Test',
         'is_active' => true,
     ]);
-    
+
     $field = FieldKitDefinition::create([
         'fieldkit_form_id' => $form->id,
         'key' => 'dependent_field',
@@ -29,11 +29,11 @@ it('evaluates in operator correctly', function () {
             ],
         ],
     ]);
-    
+
     // Should show when email matches one of the values
     expect($field->shouldDisplay(['email' => 'rm@ameax.com']))->toBeTrue();
     expect($field->shouldDisplay(['email' => 'admin@example.com']))->toBeTrue();
-    
+
     // Should hide when email doesn't match
     expect($field->shouldDisplay(['email' => 'user@test.com']))->toBeFalse();
     expect($field->shouldDisplay([]))->toBeFalse();
@@ -45,7 +45,7 @@ it('evaluates not_in operator correctly', function () {
         'name' => 'Not In Test',
         'is_active' => true,
     ]);
-    
+
     $field = FieldKitDefinition::create([
         'fieldkit_form_id' => $form->id,
         'key' => 'special_field',
@@ -60,11 +60,11 @@ it('evaluates not_in operator correctly', function () {
             ],
         ],
     ]);
-    
+
     // Should show when user_type is NOT guest or banned
     expect($field->shouldDisplay(['user_type' => 'admin']))->toBeTrue();
     expect($field->shouldDisplay(['user_type' => 'member']))->toBeTrue();
-    
+
     // Should hide when user_type is guest or banned
     expect($field->shouldDisplay(['user_type' => 'guest']))->toBeFalse();
     expect($field->shouldDisplay(['user_type' => 'banned']))->toBeFalse();
@@ -76,7 +76,7 @@ it('evaluates equals operator correctly', function () {
         'name' => 'Equals Test',
         'is_active' => true,
     ]);
-    
+
     $field = FieldKitDefinition::create([
         'fieldkit_form_id' => $form->id,
         'key' => 'marketing_consent',
@@ -91,10 +91,10 @@ it('evaluates equals operator correctly', function () {
             ],
         ],
     ]);
-    
+
     // Should show only when email exactly matches
     expect($field->shouldDisplay(['contact_email' => 'rm@ameax.com']))->toBeTrue();
-    
+
     // Should hide for any other email
     expect($field->shouldDisplay(['contact_email' => 'other@example.com']))->toBeFalse();
     expect($field->shouldDisplay(['contact_email' => 'RM@AMEAX.COM']))->toBeFalse(); // Case sensitive
@@ -106,7 +106,7 @@ it('evaluates not_equals operator correctly', function () {
         'name' => 'Not Equals Test',
         'is_active' => true,
     ]);
-    
+
     $field = FieldKitDefinition::create([
         'fieldkit_form_id' => $form->id,
         'key' => 'additional_info',
@@ -121,12 +121,12 @@ it('evaluates not_equals operator correctly', function () {
             ],
         ],
     ]);
-    
+
     // Should show for any country except DE
     expect($field->shouldDisplay(['country' => 'US']))->toBeTrue();
     expect($field->shouldDisplay(['country' => 'FR']))->toBeTrue();
     expect($field->shouldDisplay(['country' => 'UK']))->toBeTrue();
-    
+
     // Should hide only for DE
     expect($field->shouldDisplay(['country' => 'DE']))->toBeFalse();
 });
@@ -137,7 +137,7 @@ it('evaluates multiple conditions with AND logic', function () {
         'name' => 'Multi Condition Test',
         'is_active' => true,
     ]);
-    
+
     $field = FieldKitDefinition::create([
         'fieldkit_form_id' => $form->id,
         'key' => 'premium_features',
@@ -157,29 +157,29 @@ it('evaluates multiple conditions with AND logic', function () {
             ],
         ],
     ]);
-    
+
     // Should show only when ALL conditions are met
     expect($field->shouldDisplay([
         'user_type' => 'premium',
         'country' => 'US',
     ]))->toBeTrue();
-    
+
     expect($field->shouldDisplay([
         'user_type' => 'premium',
         'country' => 'UK',
     ]))->toBeTrue();
-    
+
     // Should hide if ANY condition is not met
     expect($field->shouldDisplay([
         'user_type' => 'basic',
         'country' => 'US',
     ]))->toBeFalse();
-    
+
     expect($field->shouldDisplay([
         'user_type' => 'premium',
         'country' => 'DE',
     ]))->toBeFalse();
-    
+
     expect($field->shouldDisplay([
         'user_type' => 'basic',
         'country' => 'DE',
@@ -192,7 +192,7 @@ it('handles boolean values correctly', function () {
         'name' => 'Boolean Test',
         'is_active' => true,
     ]);
-    
+
     $field = FieldKitDefinition::create([
         'fieldkit_form_id' => $form->id,
         'key' => 'newsletter_frequency',
@@ -207,13 +207,13 @@ it('handles boolean values correctly', function () {
             ],
         ],
     ]);
-    
+
     // Boolean true should be converted to 'true' string
     expect($field->shouldDisplay(['subscribe_newsletter' => true]))->toBeTrue();
-    
+
     // Boolean false should be converted to 'false' string
     expect($field->shouldDisplay(['subscribe_newsletter' => false]))->toBeFalse();
-    
+
     // String 'true' should work directly
     expect($field->shouldDisplay(['subscribe_newsletter' => 'true']))->toBeTrue();
 });

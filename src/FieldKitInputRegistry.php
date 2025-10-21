@@ -11,7 +11,7 @@ class FieldKitInputRegistry
 {
     private array $inputs = [];
 
-    public function __construct(array $inputTypes = null)
+    public function __construct(?array $inputTypes = null)
     {
         if ($inputTypes !== null) {
             foreach ($inputTypes as $key => $class) {
@@ -29,7 +29,7 @@ class FieldKitInputRegistry
     {
         if (function_exists('config')) {
             $configTypes = config('fieldkit.input_types', []);
-            
+
             foreach ($configTypes as $key => $class) {
                 $this->register($key, $class);
             }
@@ -41,7 +41,7 @@ class FieldKitInputRegistry
      */
     public function register(string $key, string $class): void
     {
-        if (!is_subclass_of($class, FieldKitInputInterface::class)) {
+        if (! is_subclass_of($class, FieldKitInputInterface::class)) {
             throw new InvalidArgumentException(
                 "{$class} must implement FieldKitInputInterface"
             );
@@ -63,7 +63,7 @@ class FieldKitInputRegistry
      */
     public function get(string $key): string
     {
-        if (!isset($this->inputs[$key])) {
+        if (! isset($this->inputs[$key])) {
             throw new InvalidArgumentException("Input type {$key} not found in registry");
         }
 
@@ -75,13 +75,13 @@ class FieldKitInputRegistry
      */
     public function resolve(string $key): FieldKitInputInterface
     {
-        if (!isset($this->inputs[$key])) {
+        if (! isset($this->inputs[$key])) {
             throw new InvalidArgumentException("Input type '{$key}' is not registered");
         }
 
         $class = $this->inputs[$key];
-        
-        return new $class();
+
+        return new $class;
     }
 
     /**

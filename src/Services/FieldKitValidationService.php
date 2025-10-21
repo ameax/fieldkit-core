@@ -20,8 +20,8 @@ class FieldKitValidationService
     public function getRulesForPurpose(string $purposeToken, array $formData = []): array
     {
         $formDefinition = $this->resolver->resolve($purposeToken);
-        
-        if (!$formDefinition) {
+
+        if (! $formDefinition) {
             return [];
         }
 
@@ -34,8 +34,8 @@ class FieldKitValidationService
     public function getMessagesForPurpose(string $purposeToken, array $formData = []): array
     {
         $formDefinition = $this->resolver->resolve($purposeToken);
-        
-        if (!$formDefinition) {
+
+        if (! $formDefinition) {
             return [];
         }
 
@@ -51,12 +51,12 @@ class FieldKitValidationService
 
         foreach ($formDefinition->fields as $field) {
             // Skip inactive fields
-            if (!$field->isActive) {
+            if (! $field->isActive) {
                 continue;
             }
 
             // Check conditional visibility
-            if (!$field->shouldDisplay($formData)) {
+            if (! $field->shouldDisplay($formData)) {
                 continue;
             }
 
@@ -77,7 +77,7 @@ class FieldKitValidationService
             }
 
             // Add custom validation rules from field definition
-            if (!empty($field->validationRules)) {
+            if (! empty($field->validationRules)) {
                 $customRules = explode('|', $field->validationRules);
                 $fieldRules = array_merge($fieldRules, $customRules);
             }
@@ -87,14 +87,14 @@ class FieldKitValidationService
                 $input = $this->registry->resolve($field->type);
                 if ($input->supportsOptions() && $field->hasOptions()) {
                     $validValues = $field->options->pluck('value')->toArray();
-                    $fieldRules[] = 'in:' . implode(',', $validValues);
+                    $fieldRules[] = 'in:'.implode(',', $validValues);
                 }
             }
 
             // Remove duplicates and empty rules
             $fieldRules = array_filter(array_unique($fieldRules));
 
-            if (!empty($fieldRules)) {
+            if (! empty($fieldRules)) {
                 $rules[$field->key] = $fieldRules;
             }
         }
@@ -110,11 +110,11 @@ class FieldKitValidationService
         $messages = [];
 
         foreach ($formDefinition->fields as $field) {
-            if (!$field->isActive) {
+            if (! $field->isActive) {
                 continue;
             }
 
-            if (!$field->shouldDisplay($formData)) {
+            if (! $field->shouldDisplay($formData)) {
                 continue;
             }
 
@@ -131,7 +131,7 @@ class FieldKitValidationService
             // Type-specific messages
             if ($this->registry->has($field->type)) {
                 $input = $this->registry->resolve($field->type);
-                
+
                 if ($input->getName() === 'email') {
                     $messages["{$field->key}.email"] = "Please enter a valid email address for {$label}.";
                 } elseif ($input->getName() === 'number') {
@@ -144,7 +144,6 @@ class FieldKitValidationService
 
         return $messages;
     }
-
 
     /**
      * Validate form data for a purpose token

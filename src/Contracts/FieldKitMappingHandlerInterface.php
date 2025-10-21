@@ -12,16 +12,16 @@ interface FieldKitMappingHandlerInterface
     /**
      * Can this handler process the mappings?
      *
-     * @param string $adapter Adapter type (e.g. 'ameax_column', 'mailchimp_api')
+     * @param  string  $adapter  Adapter type (e.g. 'ameax_column', 'mailchimp_api')
      */
     public function supports(string $adapter): bool;
 
     /**
      * Process the mapped data
      *
-     * @param Model $model Parent model (e.g. Customer)
-     * @param Collection $mappings Filtered mappings for this handler
-     * @param array $formData Original form data
+     * @param  Model  $model  Parent model (e.g. Customer)
+     * @param  Collection  $mappings  Filtered mappings for this handler
+     * @param  array  $formData  Original form data
      */
     public function handle(
         Model $model,

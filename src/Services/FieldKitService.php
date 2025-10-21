@@ -7,7 +7,6 @@ namespace Ameax\FieldkitCore\Services;
 use Ameax\FieldkitCore\Contracts\FieldKitAdapterInterface;
 use Ameax\FieldkitCore\Data\FieldKitFormData;
 use Ameax\FieldkitCore\FieldKitInputRegistry;
-use Ameax\FieldkitCore\Models\FieldKitDefinition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -25,11 +24,11 @@ class FieldKitService
     {
         $formDefinition = $this->resolver->resolve($purposeToken);
 
-        if (!$formDefinition) {
-            return new Collection();
+        if (! $formDefinition) {
+            return new Collection;
         }
 
-        return $formDefinition->fields->filter(fn($field) => $field->isActive);
+        return $formDefinition->fields->filter(fn ($field) => $field->isActive);
     }
 
     /**
@@ -45,12 +44,12 @@ class FieldKitService
 
         foreach ($fields as $field) {
             // Skip if adapter doesn't support this input type
-            if (!$adapter->supports($field->type)) {
+            if (! $adapter->supports($field->type)) {
                 continue;
             }
 
             // Get input type from registry
-            if (!$this->registry->has($field->type)) {
+            if (! $this->registry->has($field->type)) {
                 continue;
             }
 
@@ -101,7 +100,7 @@ class FieldKitService
         // Load form definition
         $formDefinition = $this->resolver->resolve($purposeToken);
 
-        if (!$formDefinition) {
+        if (! $formDefinition) {
             throw new \Exception("No form definition found for purpose: {$purposeToken}");
         }
 
@@ -113,7 +112,7 @@ class FieldKitService
         $transformedData = $this->transformValues($formDefinition, $filteredData);
 
         // 1. Always store in JSON column
-        if (!empty($transformedData)) {
+        if (! empty($transformedData)) {
             $existingData = $model->{$jsonColumn} ?? [];
             $mergedData = array_merge($existingData, $transformedData);
             $model->{$jsonColumn} = $mergedData;
@@ -124,7 +123,6 @@ class FieldKitService
         $this->executeHandlers($formDefinition, $model, $filteredData);
     }
 
-
     /**
      * Transform values according to input type transformations
      */
@@ -133,7 +131,7 @@ class FieldKitService
         $transformed = [];
 
         foreach ($formDefinition->fields as $field) {
-            if (!isset($formData[$field->key])) {
+            if (! isset($formData[$field->key])) {
                 continue;
             }
 
@@ -165,7 +163,7 @@ class FieldKitService
         }
 
         foreach ($formDefinition->handlers as $handlerClass) {
-            if (!class_exists($handlerClass)) {
+            if (! class_exists($handlerClass)) {
                 continue;
             }
 
@@ -173,7 +171,7 @@ class FieldKitService
 
             // Filter mappings that this handler supports
             $relevantMappings = $mappings->filter(
-                fn($mapping) => $handler->supports($mapping['adapter'])
+                fn ($mapping) => $handler->supports($mapping['adapter'])
             );
 
             if ($relevantMappings->isEmpty()) {
@@ -204,7 +202,7 @@ class FieldKitService
         $mappings = [];
 
         foreach ($formDefinition->fields as $field) {
-            if (!isset($formData[$field->key]) || empty($field->mappings)) {
+            if (! isset($formData[$field->key]) || empty($field->mappings)) {
                 continue;
             }
 

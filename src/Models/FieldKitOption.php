@@ -7,6 +7,15 @@ namespace Ameax\FieldkitCore\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $fieldkit_definition_id
+ * @property string $value
+ * @property string $label
+ * @property string|null $description
+ * @property string|null $icon
+ * @property string|null $external_identifier
+ * @property int $sort_order
+ */
 class FieldKitOption extends Model
 {
     protected $table = 'fieldkit_options';

@@ -13,7 +13,7 @@ class FieldkitCoreServiceProvider extends PackageServiceProvider
 
         // Input type registry as singleton
         $this->app->singleton(FieldKitInputRegistry::class, function ($app) {
-            $registry = new FieldKitInputRegistry();
+            $registry = new FieldKitInputRegistry;
 
             // Load input types from config
             foreach (config('fieldkit.input_types', []) as $token => $class) {
@@ -41,8 +41,8 @@ class FieldkitCoreServiceProvider extends PackageServiceProvider
             ->hasConfigFile('fieldkit')
             ->hasMigrations([
                 'create_fieldkit_forms_table',
-                'create_fieldkit_definitions_table', 
-                'create_fieldkit_options_table'
+                'create_fieldkit_definitions_table',
+                'create_fieldkit_options_table',
             ]);
     }
 }

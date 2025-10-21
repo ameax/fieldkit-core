@@ -14,7 +14,7 @@ class FieldKitDefinitionResolver
 
     public function __construct()
     {
-        $this->sources = new Collection();
+        $this->sources = new Collection;
         $this->registerSources();
     }
 

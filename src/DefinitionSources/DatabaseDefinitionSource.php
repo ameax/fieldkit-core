@@ -17,7 +17,7 @@ class DatabaseDefinitionSource implements FieldKitDefinitionSourceInterface
             ->with(['fields.options'])
             ->first();
 
-        if (!$form) {
+        if (! $form) {
             return null;
         }
 

@@ -69,8 +69,8 @@ interface FieldKitInputInterface
     /**
      * Transforms value for storage/display
      *
-     * @param mixed $value Value
-     * @param string $direction 'store' or 'retrieve'
+     * @param  mixed  $value  Value
+     * @param  string  $direction  'store' or 'retrieve'
      */
     public function transformValue(mixed $value, string $direction = 'store'): mixed;
 }

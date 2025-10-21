@@ -7,10 +7,18 @@ namespace Ameax\FieldkitCore\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $purpose_token
+ * @property string $name
+ * @property string|null $description
+ * @property bool $is_active
+ * @property string|null $owner_type
+ * @property int|null $owner_id
+ */
 class FieldKitForm extends Model
 {
     protected $table = 'fieldkit_forms';
-    
+
     protected $fillable = [
         'purpose_token',
         'name',
@@ -50,6 +58,7 @@ class FieldKitForm extends Model
 
     public function getField(string $key): ?FieldKitDefinition
     {
+        /** @var FieldKitDefinition|null */
         return $this->fields()->where('key', $key)->first();
     }
 

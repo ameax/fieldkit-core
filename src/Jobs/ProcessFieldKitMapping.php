@@ -18,6 +18,7 @@ class ProcessFieldKitMapping implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries;
+
     public int $backoff;
 
     public function __construct(
@@ -28,7 +29,7 @@ class ProcessFieldKitMapping implements ShouldQueue
     ) {
         $this->tries = config('fieldkit.handlers.retry_attempts', 3);
         $this->backoff = config('fieldkit.handlers.retry_delay', 60);
-        
+
         // Use configured queue connection and name
         $this->onConnection(config('fieldkit.handlers.queue_connection', 'default'));
         $this->onQueue(config('fieldkit.handlers.queue_name', 'default'));
@@ -36,13 +37,13 @@ class ProcessFieldKitMapping implements ShouldQueue
 
     public function handle(): void
     {
-        if (!class_exists($this->handlerClass)) {
+        if (! class_exists($this->handlerClass)) {
             throw new \Exception("Handler class not found: {$this->handlerClass}");
         }
 
         $handler = app($this->handlerClass);
 
-        if (!$handler instanceof FieldKitMappingHandlerInterface) {
+        if (! $handler instanceof FieldKitMappingHandlerInterface) {
             throw new \Exception("Handler must implement FieldKitMappingHandlerInterface: {$this->handlerClass}");
         }
 

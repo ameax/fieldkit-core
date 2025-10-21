@@ -15,9 +15,9 @@ class TestCase extends Orchestra
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'Ameax\\FieldkitCore\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
-        
+
         // Run migrations for testing
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     protected function getPackageProviders($app)
@@ -35,10 +35,10 @@ class TestCase extends Orchestra
             'database' => ':memory:',
             'prefix' => '',
         ]);
-        
+
         // Queue configuration for testing
         config()->set('queue.default', 'sync');
-        
+
         // FieldKit configuration for testing
         config()->set('fieldkit.input_types', [
             'text' => \Ameax\FieldkitCore\Inputs\FieldKitTextInput::class,
@@ -49,7 +49,7 @@ class TestCase extends Orchestra
             'select' => \Ameax\FieldkitCore\Inputs\FieldKitSelectInput::class,
             'radio' => \Ameax\FieldkitCore\Inputs\FieldKitRadioInput::class,
         ]);
-        
+
         config()->set('fieldkit.definition_sources', [
             'config' => ['priority' => 200],
             'database' => ['priority' => 100],
@@ -58,7 +58,7 @@ class TestCase extends Orchestra
                 'path' => storage_path('fieldkit'),
             ],
         ]);
-        
+
         config()->set('fieldkit.handlers', []);
     }
 }

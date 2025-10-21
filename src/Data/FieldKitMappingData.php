@@ -37,6 +37,7 @@ class FieldKitMappingData
     public function getColumn(): string
     {
         $parts = explode('.', $this->target);
+
         return $parts[1] ?? $parts[0];
     }
 
@@ -45,7 +46,7 @@ class FieldKitMappingData
      */
     public function hasConditions(): bool
     {
-        return !empty($this->conditions);
+        return ! empty($this->conditions);
     }
 
     /**
@@ -53,7 +54,7 @@ class FieldKitMappingData
      */
     public function hasTransformations(): bool
     {
-        return !empty($this->transformations);
+        return ! empty($this->transformations);
     }
 
     public function toArray(): array

@@ -43,19 +43,19 @@ class AmeaxCustomerHandler implements FieldKitMappingHandlerInterface
     {
         $target = $mapping['target'];
         $fieldKey = $mapping['field_key'] ?? null;
-        
-        if (!$fieldKey || !isset($formData[$fieldKey])) {
+
+        if (! $fieldKey || ! isset($formData[$fieldKey])) {
             return;
         }
 
         $value = $formData[$fieldKey];
-        
+
         // Transform value based on configuration
         $transformedValue = $this->transformValue($value, $mapping['config'] ?? []);
-        
+
         // Apply dot notation to model
         $this->setNestedAttribute($model, $target, $transformedValue);
-        
+
         // Save the model
         $model->save();
     }
@@ -69,16 +69,16 @@ class AmeaxCustomerHandler implements FieldKitMappingHandlerInterface
         if (isset($config['type']) && $config['type'] === 'boolean') {
             return $value ? 1 : 0;
         }
-        
+
         // String transformation
         if (isset($config['prefix'])) {
-            return $config['prefix'] . $value;
+            return $config['prefix'].$value;
         }
-        
+
         if (isset($config['suffix'])) {
-            return $value . $config['suffix'];
+            return $value.$config['suffix'];
         }
-        
+
         // Default: return as-is
         return $value;
     }
@@ -89,36 +89,42 @@ class AmeaxCustomerHandler implements FieldKitMappingHandlerInterface
     protected function setNestedAttribute(Model $model, string $target, mixed $value): void
     {
         $parts = explode('.', $target);
-        
+
         if (count($parts) === 1) {
             // Direct attribute
             $model->{$parts[0]} = $value;
+
             return;
         }
-        
+
         if (count($parts) === 2 && $parts[0] === 'customer') {
             // Customer relationship or direct attribute
             if ($model->hasAttribute($parts[1])) {
                 $model->{$parts[1]} = $value;
-            } elseif (method_exists($model, 'customer') && $model->customer) {
-                $model->customer->{$parts[1]} = $value;
-                $model->customer->save();
+            } elseif (method_exists($model, 'customer')) {
+                /** @var \Illuminate\Database\Eloquent\Model|null $customer */
+                $customer = $model->getAttribute('customer');
+                if ($customer) {
+                    $customer->{$parts[1]} = $value;
+                    $customer->save();
+                }
             }
+
             return;
         }
-        
+
         // Complex nested relationships
         $current = $model;
         for ($i = 0; $i < count($parts) - 1; $i++) {
             $relation = $parts[$i];
             if (method_exists($current, $relation)) {
                 $current = $current->{$relation};
-                if (!$current) {
+                if (! $current) {
                     return; // Relationship doesn't exist
                 }
             }
         }
-        
+
         $finalAttribute = end($parts);
         $current->{$finalAttribute} = $value;
         $current->save();
