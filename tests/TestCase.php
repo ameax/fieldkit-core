@@ -15,6 +15,9 @@ class TestCase extends Orchestra
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'Ameax\\FieldkitCore\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
+        
+        // Run migrations for testing
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
     protected function getPackageProviders($app)
@@ -57,7 +60,5 @@ class TestCase extends Orchestra
         ]);
         
         config()->set('fieldkit.handlers', []);
-
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 }

@@ -22,17 +22,74 @@ Framework-agnostic core package for dynamic, admin-manageable form fields with m
 
 ## Installation
 
+### Via Composer (when published)
+
 ```bash
 composer require ameax/fieldkit-core
 ```
 
-Publish the migrations and config:
+### Local Development Setup
+
+For local development, add the package as a path repository in your main project's `composer.json`:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/fieldkit-core"
+        }
+    ]
+}
+```
+
+Then install:
 
 ```bash
+composer require ameax/fieldkit-core:@dev
+```
+
+### Publish Configuration and Migrations
+
+```bash
+# Publish the configuration file
+php artisan vendor:publish --tag="fieldkit-core-config"
+
+# Publish and run migrations
 php artisan vendor:publish --tag="fieldkit-core-migrations"
 php artisan migrate
+```
 
-php artisan vendor:publish --tag="fieldkit-core-config"
+### Configuration
+
+After publishing, configure the package in `config/fieldkit.php`:
+
+```php
+return [
+    // Input type registry
+    'input_types' => [
+        'text' => \Ameax\FieldkitCore\Inputs\FieldKitTextInput::class,
+        'email' => \Ameax\FieldkitCore\Inputs\FieldKitEmailInput::class,
+        'number' => \Ameax\FieldkitCore\Inputs\FieldKitNumberInput::class,
+        'textarea' => \Ameax\FieldkitCore\Inputs\FieldKitTextareaInput::class,
+        'checkbox' => \Ameax\FieldkitCore\Inputs\FieldKitCheckboxInput::class,
+        'select' => \Ameax\FieldkitCore\Inputs\FieldKitSelectInput::class,
+        'radio' => \Ameax\FieldkitCore\Inputs\FieldKitRadioInput::class,
+    ],
+    
+    // Definition source priorities
+    'definition_sources' => [
+        'config' => ['priority' => 200],    // Config First principle
+        'database' => ['priority' => 100],
+        'json' => [
+            'priority' => 50,
+            'path' => storage_path('fieldkit'),
+        ],
+    ],
+    
+    // Handler classes for external system integration
+    'handlers' => [],
+];
 ```
 
 ## Basic Usage

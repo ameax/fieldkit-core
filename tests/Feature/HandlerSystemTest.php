@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Ameax\FieldkitCore\Jobs\ProcessFieldKitMapping;
 use Ameax\FieldkitCore\Contracts\FieldKitMappingHandlerInterface;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 beforeEach(function () {
     Queue::fake();
@@ -52,16 +54,21 @@ it('processes mapping with async handler', function () {
     $handler = new class implements FieldKitMappingHandlerInterface {
         public static $lastProcessedData = null;
         
-        public function handle(string $target, mixed $value, array $config = []): void
+        public function supports(string $adapter): bool
+        {
+            return $adapter === 'test_adapter';
+        }
+        
+        public function handle(Model $model, Collection $mappings, array $formData): void
         {
             static::$lastProcessedData = [
-                'target' => $target,
-                'value' => $value,
-                'config' => $config
+                'model' => $model,
+                'mappings' => $mappings->toArray(),
+                'formData' => $formData
             ];
         }
         
-        public function isAsync(): bool
+        public function shouldQueue(): bool
         {
             return true;
         }
