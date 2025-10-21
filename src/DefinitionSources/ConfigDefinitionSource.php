@@ -13,9 +13,7 @@ class ConfigDefinitionSource implements FieldKitDefinitionSourceInterface
     {
         $forms = config('fieldkit.forms', []);
 
-        dd($forms);
-        
-        if (!isset($forms[$purposeToken])) {
+        if (! isset($forms[$purposeToken])) {
             return null;
         }
 
@@ -35,6 +33,7 @@ class ConfigDefinitionSource implements FieldKitDefinitionSourceInterface
     public function supports(string $purposeToken): bool
     {
         $forms = config('fieldkit.forms', []);
+
         return isset($forms[$purposeToken]);
     }
 }
