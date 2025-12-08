@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $is_active
  * @property string|null $owner_type
  * @property int|null $owner_id
+ * @property array<string, mixed>|null $context_data
  */
 class FieldKitForm extends Model
 {
@@ -29,12 +30,14 @@ class FieldKitForm extends Model
         'is_active',
         'owner_type',
         'owner_id',
+        'context_data',
     ];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'context_data' => 'array',
         ];
     }
 
