@@ -72,7 +72,7 @@ class DatabaseDefinitionSource implements FieldKitDefinitionSourceInterface
             ->pluck('id')
             ->toArray();
 
-        return FieldKitForm::whereIn('id', $matchingIds);
+        return FieldKitForm::whereIn('id', $matchingIds)->with(['fields.options']);
     }
 
     protected function isContextEnabled(): bool
