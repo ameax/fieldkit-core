@@ -5,6 +5,26 @@ declare(strict_types=1);
 return [
     /*
     |--------------------------------------------------------------------------
+    | Available Purpose Tokens
+    |--------------------------------------------------------------------------
+    |
+    | Define the available purpose tokens for FieldKit forms. When configured,
+    | the admin panel will show a dropdown instead of a text field, preventing
+    | typos and ensuring only valid tokens are used.
+    |
+    | Leave empty to use free-text input (original behavior).
+    |
+    | Example:
+    | 'purpose_tokens' => [
+    |     'customer_checkout' => 'Checkout Page',
+    |     'customer_registration' => 'Registration Page',
+    | ],
+    |
+    */
+    'purpose_tokens' => [],
+
+    /*
+    |--------------------------------------------------------------------------
     | FieldKit Input Types Registry
     |--------------------------------------------------------------------------
     |
