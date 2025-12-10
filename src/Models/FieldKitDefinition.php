@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $is_active
  * @property array|null $conditions
  * @property array|null $mappings
+ * @property array<string, mixed>|null $context_data
  */
 class FieldKitDefinition extends Model
 {
@@ -42,6 +43,7 @@ class FieldKitDefinition extends Model
         'is_active',
         'conditions',
         'mappings',
+        'context_data',
     ];
 
     protected function casts(): array
@@ -51,6 +53,7 @@ class FieldKitDefinition extends Model
             'is_active' => 'boolean',
             'conditions' => 'array',
             'mappings' => 'array',
+            'context_data' => 'array',
         ];
     }
 
