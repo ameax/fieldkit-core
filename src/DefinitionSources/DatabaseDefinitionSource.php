@@ -82,12 +82,22 @@ class DatabaseDefinitionSource implements FieldKitDefinitionSourceInterface
 
     protected function getContextResolver(): ?ContextResolverInterface
     {
-        $resolverClass = config('fieldkit.context.resolver');
+        // Use form_resolver for form-level context, fallback to resolver for backwards compatibility
+        $resolverConfig = config('fieldkit.context.form_resolver') ?? config('fieldkit.context.resolver');
 
-        if (! $resolverClass || ! class_exists($resolverClass)) {
+        if (! $resolverConfig) {
             return null;
         }
 
-        return app($resolverClass);
+        // Handle closure (factory method) or class string
+        if ($resolverConfig instanceof \Closure) {
+            return $resolverConfig();
+        }
+
+        if (is_string($resolverConfig) && class_exists($resolverConfig)) {
+            return app($resolverConfig);
+        }
+
+        return null;
     }
 }
