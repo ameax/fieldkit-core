@@ -15,7 +15,7 @@ class FieldKitDefinitionData
         public ?string $description = null,
         public ?string $placeholder = null,
         public bool $isRequired = false,
-        public ?string $validationRules = null,
+        public array $validationRules = [],
         public int $sortOrder = 0,
         public bool $isActive = true,
         public ?array $conditions = null,
@@ -33,6 +33,11 @@ class FieldKitDefinitionData
             })
             : collect();
 
+        // Get resolved validation rules (includes validation_pattern regex)
+        $validationRules = $definition->getValidationRules();
+        // Filter out 'required' as it's handled separately via isRequired
+        $validationRules = array_values(array_filter($validationRules, fn ($rule) => $rule !== 'required'));
+
         return new self(
             key: $definition->key,
             type: $definition->type,
@@ -40,7 +45,7 @@ class FieldKitDefinitionData
             description: $definition->description,
             placeholder: $definition->placeholder,
             isRequired: $definition->is_required,
-            validationRules: $definition->validation_rules,
+            validationRules: $validationRules,
             sortOrder: $definition->sort_order,
             isActive: $definition->is_active,
             conditions: $definition->conditions,
@@ -55,6 +60,12 @@ class FieldKitDefinitionData
             return FieldKitOptionData::fromArray($optionData);
         });
 
+        // Handle validation_rules as string or array
+        $validationRules = $data['validation_rules'] ?? [];
+        if (is_string($validationRules) && ! empty($validationRules)) {
+            $validationRules = explode('|', $validationRules);
+        }
+
         return new self(
             key: $data['key'],
             type: $data['type'],
@@ -62,7 +73,7 @@ class FieldKitDefinitionData
             description: $data['description'] ?? null,
             placeholder: $data['placeholder'] ?? null,
             isRequired: $data['is_required'] ?? false,
-            validationRules: $data['validation_rules'] ?? null,
+            validationRules: is_array($validationRules) ? $validationRules : [],
             sortOrder: $data['sort_order'] ?? 0,
             isActive: $data['is_active'] ?? true,
             conditions: $data['conditions'] ?? null,
