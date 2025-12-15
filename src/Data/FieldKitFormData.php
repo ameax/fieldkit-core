@@ -32,6 +32,7 @@ class FieldKitFormData
         $fieldResolver = static::getFieldContextResolver();
         if ($fieldResolver) {
             $activeFields = $activeFields->filter(
+                /** @phpstan-ignore-next-line property.notFound */
                 fn ($field) => $fieldResolver->matchesContext($field->context_data)
             );
         }
