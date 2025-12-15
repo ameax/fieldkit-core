@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ameax\FieldkitCore\DefinitionSources;
 
+use Ameax\FieldkitCore\Contracts\ContextResolverInterface;
 use Ameax\FieldkitCore\Contracts\FieldKitDefinitionSourceInterface;
 use Ameax\FieldkitCore\Data\FieldKitFormData;
 use Ameax\FieldkitCore\Models\FieldKitForm;
@@ -12,10 +13,11 @@ class DatabaseDefinitionSource implements FieldKitDefinitionSourceInterface
 {
     public function getFormDefinition(string $purposeToken): ?FieldKitFormData
     {
-        $form = FieldKitForm::byPurpose($purposeToken)
+        $query = FieldKitForm::byPurpose($purposeToken)
             ->active()
-            ->with(['fields.options'])
-            ->first();
+            ->with(['fields.options']);
+
+        $form = $this->applyContextFilter($query)->first();
 
         if (! $form) {
             return null;
@@ -26,7 +28,9 @@ class DatabaseDefinitionSource implements FieldKitDefinitionSourceInterface
 
     public function getAvailablePurposes(): array
     {
-        return FieldKitForm::active()
+        $query = FieldKitForm::active();
+
+        return $this->applyContextFilter($query)
             ->pluck('purpose_token')
             ->toArray();
     }
@@ -38,6 +42,62 @@ class DatabaseDefinitionSource implements FieldKitDefinitionSourceInterface
 
     public function supports(string $purposeToken): bool
     {
-        return FieldKitForm::byPurpose($purposeToken)->active()->exists();
+        $query = FieldKitForm::byPurpose($purposeToken)->active();
+
+        return $this->applyContextFilter($query)->exists();
+    }
+
+    /**
+     * Apply context filtering to query if enabled
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<FieldKitForm>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<FieldKitForm>
+     */
+    protected function applyContextFilter($query)
+    {
+        if (! $this->isContextEnabled()) {
+            return $query;
+        }
+
+        $resolver = $this->getContextResolver();
+        if (! $resolver) {
+            return $query;
+        }
+
+        // Get all forms and filter using resolver
+        // We use whereIn with IDs after filtering since context matching
+        // requires model data that can't be done in pure SQL
+        $matchingIds = $query->get()
+            ->filter(fn (FieldKitForm $form) => $resolver->matchesContext($form->context_data))
+            ->pluck('id')
+            ->toArray();
+
+        return FieldKitForm::whereIn('id', $matchingIds)->with(['fields.options']);
+    }
+
+    protected function isContextEnabled(): bool
+    {
+        return (bool) config('fieldkit.context.enabled', false);
+    }
+
+    protected function getContextResolver(): ?ContextResolverInterface
+    {
+        // Use form_resolver for form-level context, fallback to resolver for backwards compatibility
+        $resolverConfig = config('fieldkit.context.form_resolver') ?? config('fieldkit.context.resolver');
+
+        if (! $resolverConfig) {
+            return null;
+        }
+
+        // Handle closure (factory method) or class string
+        if ($resolverConfig instanceof \Closure) {
+            return $resolverConfig();
+        }
+
+        if (is_string($resolverConfig) && class_exists($resolverConfig)) {
+            return app($resolverConfig);
+        }
+
+        return null;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ameax\FieldkitCore\Models;
 
+use Ameax\FieldkitCore\Enums\ValidationPatternEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,11 +18,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $description
  * @property string|null $placeholder
  * @property bool $is_required
+ * @property string|null $validation_pattern
  * @property string|null $validation_rules
  * @property int $sort_order
  * @property bool $is_active
  * @property array|null $conditions
  * @property array|null $mappings
+ * @property array<string, mixed>|null $context_data
  */
 class FieldKitDefinition extends Model
 {
@@ -37,11 +40,13 @@ class FieldKitDefinition extends Model
         'description',
         'placeholder',
         'is_required',
+        'validation_pattern',
         'validation_rules',
         'sort_order',
         'is_active',
         'conditions',
         'mappings',
+        'context_data',
     ];
 
     protected function casts(): array
@@ -51,6 +56,7 @@ class FieldKitDefinition extends Model
             'is_active' => 'boolean',
             'conditions' => 'array',
             'mappings' => 'array',
+            'context_data' => 'array',
         ];
     }
 
@@ -71,6 +77,14 @@ class FieldKitDefinition extends Model
 
         if ($this->validation_rules) {
             $rules = explode('|', $this->validation_rules);
+        }
+
+        // Add regex rule from validation pattern if set
+        if ($this->validation_pattern) {
+            $pattern = ValidationPatternEnum::tryFrom($this->validation_pattern);
+            if ($pattern) {
+                $rules[] = 'regex:'.$pattern->getRegex();
+            }
         }
 
         if ($this->is_required) {

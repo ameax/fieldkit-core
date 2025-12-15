@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ameax\FieldkitCore\Data;
 
+use Ameax\FieldkitCore\Contracts\ContextResolverInterface;
 use Illuminate\Support\Collection;
 
 class FieldKitFormData
@@ -23,15 +24,23 @@ class FieldKitFormData
     {
         // Use already-loaded fields relationship and filter for active fields
         // to avoid lazy loading when fields.options is already eager loaded
-        $fields = $form->relationLoaded('fields')
-            ? $form->fields->where('is_active', true)->map(function ($field) {
-                /** @var \Ameax\FieldkitCore\Models\FieldKitDefinition $field */
-                return FieldKitDefinitionData::fromModel($field);
-            })
-            : $form->activeFields->map(function ($field) {
-                /** @var \Ameax\FieldkitCore\Models\FieldKitDefinition $field */
-                return FieldKitDefinitionData::fromModel($field);
-            });
+        $activeFields = $form->relationLoaded('fields')
+            ? $form->fields->where('is_active', true)
+            : $form->activeFields;
+
+        // Apply field-level context filtering if enabled
+        $fieldResolver = static::getFieldContextResolver();
+        if ($fieldResolver) {
+            $activeFields = $activeFields->filter(
+                /** @phpstan-ignore-next-line property.notFound */
+                fn ($field) => $fieldResolver->matchesContext($field->context_data)
+            );
+        }
+
+        $fields = $activeFields->map(function ($field) {
+            /** @var \Ameax\FieldkitCore\Models\FieldKitDefinition $field */
+            return FieldKitDefinitionData::fromModel($field);
+        });
 
         return new self(
             purposeToken: $form->purpose_token,
@@ -42,6 +51,33 @@ class FieldKitFormData
             ownerId: $form->owner_id,
             fields: $fields,
         );
+    }
+
+    /**
+     * Get field-level context resolver if enabled
+     */
+    protected static function getFieldContextResolver(): ?ContextResolverInterface
+    {
+        if (! config('fieldkit.context.enabled', false)) {
+            return null;
+        }
+
+        $resolverConfig = config('fieldkit.context.field_resolver') ?? config('fieldkit.context.resolver');
+
+        if (! $resolverConfig) {
+            return null;
+        }
+
+        // Handle closure (factory method) or class string
+        if ($resolverConfig instanceof \Closure) {
+            return $resolverConfig();
+        }
+
+        if (is_string($resolverConfig) && class_exists($resolverConfig)) {
+            return app($resolverConfig);
+        }
+
+        return null;
     }
 
     public static function fromConfig(string $purposeToken, array $config): self

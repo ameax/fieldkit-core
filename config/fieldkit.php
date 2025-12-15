@@ -5,6 +5,26 @@ declare(strict_types=1);
 return [
     /*
     |--------------------------------------------------------------------------
+    | Available Purpose Tokens
+    |--------------------------------------------------------------------------
+    |
+    | Define the available purpose tokens for FieldKit forms. When configured,
+    | the admin panel will show a dropdown instead of a text field, preventing
+    | typos and ensuring only valid tokens are used.
+    |
+    | Leave empty to use free-text input (original behavior).
+    |
+    | Example:
+    | 'purpose_tokens' => [
+    |     'customer_checkout' => 'Checkout Page',
+    |     'customer_registration' => 'Registration Page',
+    | ],
+    |
+    */
+    'purpose_tokens' => [],
+
+    /*
+    |--------------------------------------------------------------------------
     | FieldKit Input Types Registry
     |--------------------------------------------------------------------------
     |
@@ -164,5 +184,24 @@ return [
     'storage' => [
         'column_name' => 'fieldkit_data',
         'auto_cast' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Context Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure context-based form filtering. This allows forms to be shown
+    | only in specific contexts (e.g., specific shop groups, regions, etc.)
+    |
+    | When enabled, apps must provide:
+    | - provider: Implements ContextProviderInterface (admin UI fields)
+    | - resolver: Implements ContextResolverInterface (runtime filtering)
+    |
+    */
+    'context' => [
+        'enabled' => env('FIELDKIT_CONTEXT_ENABLED', false),
+        'provider' => null, // App must set: e.g., App\FieldKit\ShopGroupContextProvider::class
+        'resolver' => null, // App must set: e.g., App\FieldKit\ShopGroupContextResolver::class
     ],
 ];
